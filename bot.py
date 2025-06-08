@@ -1,10 +1,11 @@
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import requests
-from config import a620e6f2bdde6ca96235c71bb775d1ca, 8038063184:AAEWl6mg0MZ5ufuzG2tUP6nwVHIalo2vBTs, LANG
+from config import API_KEY, BOT_TOKEN, LANG
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
+# Commande /start
 @bot.message_handler(commands=['start'])
 def start(message):
     welcome = {
@@ -13,6 +14,7 @@ def start(message):
     }
     bot.send_message(message.chat.id, welcome[LANG], parse_mode="Markdown")
 
+# Commande /matchs ou /matches
 @bot.message_handler(commands=['matchs', 'matches'])
 def show_matches(message):
     url = "https://v3.football.api-sports.io/fixtures?date=2025-06-08&season=2024"
@@ -24,7 +26,7 @@ def show_matches(message):
         bot.send_message(message.chat.id, "Aucun match trouvé." if LANG == "FR" else "No matches found.")
         return
 
-    for match in matches[:5]:
+    for match in matches[:5]:  # Limité à 5 matchs
         home = match['teams']['home']['name']
         away = match['teams']['away']['name']
         time = match['fixture']['date'][11:16]
@@ -43,6 +45,7 @@ def show_matches(message):
 
         bot.send_message(message.chat.id, msg, reply_markup=markup)
 
+# Gère les boutons cliqués
 @bot.callback_query_handler(func=lambda call: call.data.startswith("paris"))
 def handle_bet(call):
     choice = call.data.split(":")[1]
